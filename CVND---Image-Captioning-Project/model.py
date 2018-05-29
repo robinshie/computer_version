@@ -42,20 +42,11 @@ class DecoderRNN(nn.Module):
     def forward(self, features, captions):
         embeddings = self.embed(captions)
         embeddings = torch.cat((features.unsqueeze(1), embeddings), 1)
-        packed = pack_padded_sequence(embeddings,[len(cap) for cap in captions][0], batch_first=True)
-        out, hiddens = self.lstm(packed)
+        #lengtes = [len(cap) for cap in captions]
+        #packed = pack_padded_sequence(embeddings,lengtes, batch_first=True)
+        out, hiddens = self.lstm(embeddings)
         outputs = self.linear(out[:,:-1,:])
         return outputs
-        '''
-        embeddings = self.embed(captions)
-        embeddings = torch.cat((features.unsqueeze(1), embeddings), 1)
-        lengths = [len(cap) for cap in captions]
-        packed = pack_padded_sequence(embeddings, 14, batch_first=True)
-        hiddens, _ = self.lstm(packed)
-        outputs = self.linear(hiddens[0])
-        outputs = outputs.view(captions.shape[0],captions.shape[1],self.vocab_size)
-        return outputs
-        '''
     def sample(self, features, states=None):
         sampled_ids = []
         for i in range(20):                                    # maximum sampling length
